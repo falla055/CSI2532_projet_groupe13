@@ -10,6 +10,7 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Image from 'react-bootstrap/Image';
+import './index.css';
 
 function Room() {
   return (
