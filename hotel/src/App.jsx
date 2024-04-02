@@ -4,6 +4,7 @@ import viteLogo from '/vite.svg'
 import Room from './Room'
 import Hotel from './Hotel'
 import './App.css'
+import Reservation from './Reservation'
 
 
 function App() {
@@ -11,7 +12,7 @@ function App() {
 
   return (
     <>
-      <Hotel></Hotel>
+     <Room></Room>
     </>
   )
 }

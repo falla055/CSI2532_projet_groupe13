@@ -11,8 +11,16 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Image from 'react-bootstrap/Image';
 import './index.css';
+import { useState } from 'react';
+import Modal from 'react-bootstrap/Modal';
 
 function Room() {
+
+  const [show, setShow] = useState(false);
+
+  const handleClose = () => setShow(false);
+  const handleShow = () => setShow(true);
+
   return (
     <>
       <Container style={{ padding: 0, margin: 0 }}>
@@ -133,7 +141,7 @@ function Room() {
               <Card.Body>
                 <hr />
 
-                <Card style={{ width: "100%", height: "100%", padding: 0 }}>
+                <Card style={{ width: "50rem", height: "100%", padding: 0 }}>
                   <Container>
                     <Row>
                       <Col>
@@ -145,22 +153,48 @@ function Room() {
                       </Col>
                       <Col>
                         <Card.Body>
-                          <Card.Title>Card Title</Card.Title>
                           <Card.Text>
-                            Some quick example text to build on the card title
-                            and make up the bulk of the card's content.
+                            <div> 
+                              <span>Price: </span>
+                              <span>$500</span>
+                            </div>
+                            <div>
+                              <span>Capacity: </span>
+                              <span>5</span>
+                            </div>
+                            <div>
+                              <span>Superficie: </span>
+                              <span>400cm3</span>
+                            </div>
+                            <div style={{marginBottom: 10}}>
+                              <span>Available Dates: </span>
+                              <span>2023-01-23</span>
+                            </div>
+                            <Button style={{ borderRadius: "2rem", width: "10rem", backgroundColor: "#24324b", border: '0.12rem solid white', marginRight: 40 }} variant="primary" onClick={handleShow}>View Dommages</Button>
+                            <Button style={{borderRadius: "2rem", width: "7rem", backgroundColor: "#24324b", border: '0.12rem solid white'  }} variant="primary">Reserve</Button>
+                            
                           </Card.Text>
                         </Card.Body>
                       </Col>
                     </Row>
                   </Container>
                 </Card>
-
-                <Button variant="primary">Go somewhere</Button>
               </Card.Body>
             </Card>
           </Col>
         </Row>
+
+        <Modal show={show} onHide={handleClose}>
+        <Modal.Header closeButton>
+          <Modal.Title>Dommages</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>Woohoo, you are reading this text in a modal!</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
       </Container>
     </>
   );

@@ -114,10 +114,27 @@ function Hotel() {
                       <Card.Img variant="top" src={single} />
                       <Card.Body>
                         <Card.Title>Hotel</Card.Title>
-                        <Card style={{ width: "100%", height:"8rem", backgroundColor:"darkgrey" }}>
-                          <Card.Body>
+                        <Card style={{ width: "100%", height:"8rem", backgroundColor:"darkgrey", paddingLeft:20, paddingRight:0 }}>
+                          <Card.Body style={{margin:0, padding:0}}>
                             <Card.Subtitle className="mb-2 text-muted">
-                              Card Subtitle
+                              <Row>
+                                <Col xs={4} style={{ padding: 0 }}>
+                                  <p style={{ fontSize: "12px",  textAlign: "left"}}>Very Good</p>
+                                </Col>
+                                <Col xs={8} style={{ paddingLeft:60 }}>
+                                  <p style={{ fontSize: "12px",  textAlign: "left"}}>Room Available</p>
+                                </Col>
+                              </Row>
+                              <Row>
+                                <Col xs={6} style={{ padding: 0 }}>
+                                  <div style={{ fontSize: "12px", textAlign: "left"}}> Email</div>
+                                  <div style={{ fontSize: "10px",  textAlign: "left"}}>hotelname@gmail.com</div>
+                                </Col>
+                                <Col xs={5} style={{ paddingLeft: 18 }}>
+                                  <div  style={{ fontSize: "12px",  textAlign: "left"}}> Phone</div>
+                                  <div style={{ fontSize: "10px",  textAlign: "left"}}>645-345-2324</div>
+                                </Col>
+                              </Row>
                             </Card.Subtitle>
                             <Card.Text>
     
