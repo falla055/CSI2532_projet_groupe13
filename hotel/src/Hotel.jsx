@@ -13,6 +13,7 @@ import InputGroup from "react-bootstrap/InputGroup";
 import Image from "react-bootstrap/Image";
 import "./index.css";
 
+
 function Hotel() {
   const [numberOfRooms, setNumberOfRooms] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");

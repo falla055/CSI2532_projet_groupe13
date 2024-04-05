@@ -5,6 +5,8 @@ import Room from './Room'
 import Hotel from './Hotel'
 import './App.css'
 import Reservation from './Reservation'
+import BasicNav from './Navbar'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 
 function App() {
@@ -12,7 +14,14 @@ function App() {
 
   return (
     <>
-     <Room></Room>
+      <Router>
+        <BasicNav/>
+        <Routes>
+          <Route path="/" element={<Hotel />} />
+          <Route path="/Room" element={<Room />} />
+          <Route path="/Reservation" element={<Reservation />} />
+        </Routes>
+      </Router>
     </>
   )
 }
