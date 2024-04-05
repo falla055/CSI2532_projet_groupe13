@@ -12,7 +12,7 @@ function App() {
 
   return (
     <>
-     <Room></Room>
+     <Hotel></Hotel>
     </>
   )
 }
