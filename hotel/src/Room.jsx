@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -6,21 +6,39 @@ import single from "./assets/single.jpg";
 import Container from "react-bootstrap/Container";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import Dropdown from "react-bootstrap/Dropdown";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import Form from "react-bootstrap/Form";
-import InputGroup from "react-bootstrap/InputGroup";
-import Image from "react-bootstrap/Image";
 import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
 
 function Room() {
   const [show, setShow] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const [superficieFilter, setSuperficieFilter] = useState(null);
   const [capacityFilter, setCapacityFilter] = useState(null);
   const [priceFilter, setPriceFilter] = useState(null);
 
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = (room) => {
+    setSelectedRoom(room);
+    setShow(true);
+  };
+
+  const handleEdit = () => {
+    // Collect the modified data from the form fields
+    const editedRoom = {
+      id: selectedRoom.id,
+      price: parseInt(document.getElementById("formPrice").value),
+      capacity: parseInt(document.getElementById("formCapacity").value),
+      superficie: parseInt(document.getElementById("formSuperficie").value),
+      availableDates: document.getElementById("formAvailableDates").value,
+    };
+  
+    // Perform any action with the edited room data, e.g., update state
+    console.log("Edited Room:", editedRoom);
+  
+    // Close the modal after editing
+    setShow(false);
+  };
+  
 
   const rooms = [
     {
@@ -54,7 +72,7 @@ function Room() {
   ];
 
   // Apply filters to rooms
-  const filteredRooms = rooms.filter(room => {
+  const filteredRooms = rooms.filter((room) => {
     if (superficieFilter && room.superficie < superficieFilter) return false;
     if (capacityFilter && room.capacity < capacityFilter) return false;
     if (priceFilter && room.price > priceFilter) return false;
@@ -67,7 +85,7 @@ function Room() {
         {/* Filter section */}
         <Row>
           <Col>
-            <Card style={{ width: "16rem" }}>
+            <Card style={{ width: "18rem" }}>
               <Card.Body>
                 <Card.Title>Filters</Card.Title>
                 <div>
@@ -100,9 +118,6 @@ function Room() {
               </Card.Body>
             </Card>
           </Col>
-        </Row>
-        {/* Room display */}
-        <Row>
           <Col>
             <Card style={{ width: "100%" }}>
               <Card.Body>
@@ -111,7 +126,7 @@ function Room() {
                   <Card
                     key={room.id}
                     style={{
-                      width: "46rem",
+                      width: "44rem",
                       height: "100%",
                       padding: 0,
                       marginBottom: 20,
@@ -142,11 +157,11 @@ function Room() {
                               </div>
                               <div>
                                 <span>Superficie: </span>
-                                <span> {room.superficie} </span>
+                                <span>{room.superficie}</span>
                               </div>
                               <div style={{ marginBottom: 10 }}>
                                 <span>Available Dates: </span>
-                                <span> {room.availableDates} </span>
+                                <span>{room.availableDates}</span>
                               </div>
                               <Button
                                 style={{
@@ -154,10 +169,10 @@ function Room() {
                                   width: "10rem",
                                   backgroundColor: "#24324b",
                                   border: "0.12rem solid white",
-                                  marginRight: 40,
+                                  marginRight: 20,
                                 }}
                                 variant="primary"
-                                onClick={handleShow}
+                                onClick={() => handleShow(room)}
                               >
                                 View Dommages
                               </Button>
@@ -167,10 +182,24 @@ function Room() {
                                   width: "7rem",
                                   backgroundColor: "#24324b",
                                   border: "0.12rem solid white",
+                                  marginRight: 20,
                                 }}
                                 variant="primary"
+                                onClick={() => handleShow(room)}
                               >
                                 Reserve
+                              </Button>
+                              <Button
+                                style={{
+                                  borderRadius: "2rem",
+                                  width: "7rem",
+                                  backgroundColor: "#24324b",
+                                  border: "0.12rem solid white",
+                                }}
+                                variant="primary"
+                                onClick={() => handleShow(room)}
+                              >
+                                Edit
                               </Button>
                             </Card.Text>
                           </Card.Body>
@@ -183,16 +212,37 @@ function Room() {
             </Card>
           </Col>
         </Row>
+        {/* Modal for editing room information */}
         <Modal show={show} onHide={handleClose}>
           <Modal.Header closeButton>
-            <Modal.Title>Dommages</Modal.Title>
+            <Modal.Title>Edit Room Information</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            Woohoo, you are reading this text in a modal!
+            <Form>
+              <Form.Group controlId="formPrice">
+                <Form.Label>Price</Form.Label>
+                <Form.Control type="number" placeholder="Enter price" defaultValue={selectedRoom ? selectedRoom.price : ""} />
+              </Form.Group>
+              <Form.Group controlId="formCapacity">
+                <Form.Label>Capacity</Form.Label>
+                <Form.Control type="number" placeholder="Enter capacity" defaultValue={selectedRoom ? selectedRoom.capacity : ""} />
+              </Form.Group>
+              <Form.Group controlId="formSuperficie">
+                <Form.Label>Superficie</Form.Label>
+                <Form.Control type="number" placeholder="Enter superficie" defaultValue={selectedRoom ? selectedRoom.superficie : ""} />
+              </Form.Group>
+              <Form.Group controlId="formAvailableDates">
+                <Form.Label>Available Dates</Form.Label>
+                <Form.Control type="text" placeholder="Enter available dates" defaultValue={selectedRoom ? selectedRoom.availableDates : ""} />
+              </Form.Group>
+            </Form>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={handleClose}>
               Close
+            </Button>
+            <Button variant="primary" onClick={handleEdit}>
+              Save Changes
             </Button>
           </Modal.Footer>
         </Modal>
