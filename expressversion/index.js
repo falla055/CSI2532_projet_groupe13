@@ -61,6 +61,31 @@ app.post("/clients", async (req, res) => {
     }
 });
 
+// UPDATE ROOM given room id
+app.patch("/rooms/:roomnumber", async (req, res) => {
+    try {
+        // Extract room ID from URL parameters
+        const { numerochambre } = req.params;
+
+        // Extract updated room details from request body
+        const { prixparnuit, vue, dommages, capacite, extPhone } = req.body;
+
+        // Update the room in the database
+        const updatedRoom = await pool.query(
+            "UPDATE chambre SET prixparnuit = $1, vue = $2, dommages = $3, capacite = $4, extPhone = $5 WHERE numerochambre = $6 RETURNING *",
+            [prixparnuit, vue, dommages, capacite, extPhone, numerochambre]
+        );
+
+        console.log(2)
+        res.json(updatedRoom.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to update room" });
+    }
+});
+
+
+
 //CREATE HOTEL *working*
 app.post("/hotels", async (req, res) => {
     try {
