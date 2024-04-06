@@ -84,6 +84,7 @@ CREATE TABLE Client(
 
 CREATE TABLE Reservation(
     resID SERIAL PRIMARY KEY,
+    status VARCHAR(50) CHECK (status in ('active', 'archived')),
     resStart DATE CHECK (resStart >= CURRENT_DATE),
     resEnd DATE CHECK (resEnd > resStart),
     NASclient VARCHAR(255),

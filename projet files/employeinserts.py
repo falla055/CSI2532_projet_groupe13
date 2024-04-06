@@ -32,7 +32,7 @@ with open('hotel_employees.sql', 'w') as file:
             nomHotel = hotel
             
             # Write the SQL INSERT statement for the employee to the file
-            file.write(f"INSERT INTO Employe (NAS, prenom, nom, numRue, nomRue, ville, \"CP\", role, nomHotel_id) VALUES ('{nas}', '{first_name}', '{last_name}', {num_rue}, '{nom_rue}', '{ville}', '{cp}', '{role}', '{nomHotel}');\n")
+            file.write(f"INSERT INTO Employe (NAS, prenom, nom, numRue, nomRue, ville, CP, role, nomHotel) VALUES ('{nas}', '{first_name}', '{last_name}', {num_rue}, '{nom_rue}', '{ville}', '{cp}', '{role}', '{nomHotel}');\n")
         
         # Update counters for next hotel
         nas_counter += 100
