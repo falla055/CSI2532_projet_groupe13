@@ -20,6 +20,7 @@ function BasicNav() {
             <Nav.Link as={Link} to="/">Hotel</Nav.Link>
             <Nav.Link as={Link} to="/Room">Room</Nav.Link>
             <Nav.Link as={Link} to="/Reservation">Reservation</Nav.Link>
+            <Nav.Link as={Link} to="/User">User</Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
