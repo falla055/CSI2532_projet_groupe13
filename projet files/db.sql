@@ -19,6 +19,7 @@ CREATE TABLE ChaineContact (
 CREATE TABLE Hotel (
     nomHotel VARCHAR(255) PRIMARY KEY,
     classification INT CHECK(classification BETWEEN 1 AND 5),
+    nombreChambre INT CHECK(nombreChambre >= 0),
     numRue INT,
     nomRue VARCHAR(100),
     ville VARCHAR(100),
