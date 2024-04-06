@@ -832,3 +832,6 @@ def remove_room(numero_chambre, nom_hotel):
     finally:
         cur.close()
         conn.close()
+chaine = get_chains()
+for c in chaine : 
+    print(c)
