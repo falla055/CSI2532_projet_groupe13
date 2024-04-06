@@ -38,6 +38,7 @@ CREATE TABLE Chambre (
     extPhone INT CHECK (extPhone >= 1000 AND extPhone <= 9999),
     nomHotel VARCHAR(255) NOT NULL,
     occupied BOOLEAN DEFAULT FALSE,
+    superficie INTEGER,
     PRIMARY KEY(numeroChambre, nomHotel),
     FOREIGN KEY (nomHotel) REFERENCES Hotel(nomHotel) ON DELETE CASCADE
 );
@@ -181,6 +182,37 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+--Function to automatically update the 'occupied' status on check-out
+CREATE OR REPLACE FUNCTION update_room_occupation()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Check if the location status is being updated to 'archived'
+    IF NEW.status = 'archived' THEN
+        -- Update the corresponding room in the chambre table to set occupied = False
+        UPDATE chambre
+        SET occupied = FALSE
+        WHERE numeroChambre = NEW.numchambre AND nomHotel = NEW.nomhotel;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+--Function to automatically update the number of rooms of a hotel when rooms are added to it
+CREATE OR REPLACE FUNCTION update_hotel_chambre_count()
+RETURN TRIGGER AS $$
+BEGIN
+    --Update nombrechambre conut for the hotel related to the inserted or deleted chambre
+    UPDATE hotel h
+    SET nombreChambre = (SELECT COUNT(*)
+                         FROM chambre c
+                         WHERE c.nomHotel = h.nomHotel
+                         GROUP BY c.nomHotel)
+    WHERE nomHotel = COALESCE(NEW.nomHotel, OLD.nomHotel);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 --*********** TRIGGERS **********
 
@@ -208,4 +240,23 @@ FOR EACH ROW EXECUTE FUNCTION update_room_status_on_checkin();
 CREATE TRIGGER trigger_validate_employee_role
 BEFORE INSERT OR UPDATE ON Employe
 FOR EACH ROW EXECUTE FUNCTION validate_employee_role();
+
+--trigger for detecting changed statuses in the location table
+CREATE TRIGGER trigger_update_room_occupation
+AFTER UPDATE ON location
+FOR EACH ROW
+WHEN (OLD.status IS DISTINCT FROM NEW.status)
+EXECUTE FUNCTION update_room_occupation();
+
+--update nombrechambre when item is inserted to chambre
+CREATE TRIGGER trigger_update_hotel_chambre_count_after_insert
+AFTER INSERT ON chambre
+FOR EACH ROW 
+EXECUTE FUCTION update_hotel_chambre_count();
+
+--update nombrechambre also when item is deleted from chambre
+CREATE TRIGGER trigger_update_hotel_chambre_count_after_delete
+AFTER DELETE ON chambre
+FOR EACH ROW
+EXECUTE FUNCTION update_hotel_chambre_count();
 

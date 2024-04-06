@@ -64,22 +64,28 @@ app.post("/clients", async (req, res) => {
 // UPDATE ROOM given room id
 app.patch("/rooms/:roomnumber", async (req, res) => {
     try {
-        // Extract room ID from URL parameters
-        const { numerochambre } = req.params;
+        // Extract room number from URL parameters
+        const { roomnumber } = req.params;
 
-        // Extract updated room details from request body
-        const { prixparnuit, vue, dommages, capacite, extPhone } = req.body;
+        // Extract updated room details and hotel name from request body
+        const { prixparnuit, vue, dommages, capacite, extPhone, superficie, nomhotel } = req.body;
 
-        // Update the room in the database
+        // Update the room in the database only if numerochambre and nomhotel correspond
         const updatedRoom = await pool.query(
-            "UPDATE chambre SET prixparnuit = $1, vue = $2, dommages = $3, capacite = $4, extPhone = $5 WHERE numerochambre = $6 RETURNING *",
-            [prixparnuit, vue, dommages, capacite, extPhone, numerochambre]
+            "UPDATE chambre SET prixparnuit = $1, vue = $2, dommages = $3, capacite = $4, extPhone = $5, superficie = $6 WHERE numerochambre = $7 AND nomhotel = $8 RETURNING *",
+            [prixparnuit, vue, dommages, capacite, extPhone, superficie, roomnumber, nomhotel] // Include nomhotel in the values to bind
         );
 
-        console.log(2)
+        // Check if the room was updated, if not, it might mean the room number and hotel name do not match
+        if (updatedRoom.rows.length === 0) {
+            return res.status(404).json({ error: "Room not found or hotel name does not match" });
+        }
+
+        // If the update was successful, send back the updated room details
         res.json(updatedRoom.rows[0]);
     } catch (err) {
         console.error(err.message);
+        // Send a 500 Internal Server Error response if the update fails
         res.status(500).json({ error: "Failed to update room" });
     }
 });
