@@ -151,6 +151,36 @@ app.get("/reservations", async (req, res) => {
     }
 });
 
+//GET ALL EMPLOYEE
+app.get("/employees", async (req, res) => {
+    try {
+       const employees = await pool.query("SELECT * FROM employe");
+       res.json(employees.rows);
+    } catch (error) {
+        console.error(err.message);
+    }
+});
+
+// GET ALL EMPLOYEES OF A SPECIFIC HOTEL
+app.get("/hotels/:nomHotel/employees", async (req, res) => {
+    const { nomHotel } = req.params; // Extract the hotel name from the request parameters
+    try {
+        // Query to select employees based on the hotel name
+        const employees = await pool.query(
+            "SELECT * FROM employe WHERE nomHotel = $1", [nomHotel]
+        );
+        // If employees are found, return them as JSON; otherwise, indicate no employees were found for the hotel
+        if (employees.rows.length > 0) {
+            res.json(employees.rows);
+        } else {
+            res.status(404).json({ message: `No employees found for hotel: ${nomHotel}` });
+        }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "An error occurred while fetching employees." });
+    }
+});
+
 //GET ALL LOCATIONS *working*
 app.get("/locations", async (req, res) => {
     try {
