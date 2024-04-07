@@ -18,7 +18,7 @@ function App() {
         <BasicNav/>
         <Routes>
           <Route path="/" element={<Hotel />} />
-          <Route path="/Room" element={<Room />} />
+          <Route path="/Room/:hotelName" element={<Room />} />
           <Route path="/Reservation" element={<Reservation />} />
         </Routes>
       </Router>

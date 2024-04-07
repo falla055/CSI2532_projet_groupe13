@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -11,73 +11,52 @@ import DropdownButton from "react-bootstrap/DropdownButton";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
 import Image from "react-bootstrap/Image";
+import { Link } from 'react-router-dom';
 import "./index.css";
 
 
+
 function Hotel() {
+  const [hotels, setHotels] = useState([]);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/hotels/")
+    .then(res => res.json())
+    .then(data => setHotels(data))
+    .catch(err => console.log(err))
+  }, []);
+
   const [numberOfRooms, setNumberOfRooms] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedChain, setSelectedChain] = useState("");
 
-  const hotels = [
-    {
-      id: 1,
-      name: "Hotel 1",
-      rooms: 50,
-      category: "test",
-      chain: "hotel",
-      image: single, // Assuming single is the image for Hotel 1
-      email: "hotel1@gmail.com",
-      phone: "123-456-7890",
-    },
-    {
-      id: 2,
-      name: "Hotel 2",
-      rooms: 30,
-      category: "development",
-      chain: "devo",
-      image: single, // Assuming single is the image for Hotel 2
-      email: "hotel2@gmail.com",
-      phone: "456-789-0123",
-    },
-    {
-      id: 3,
-      name: "Hotel 3",
-      rooms: 30,
-      category: "development",
-      chain: "devo",
-      image: single, // Assuming single is the image for Hotel 2
-      email: "hotel2@gmail.com",
-      phone: "456-789-0123",
-    },
-    // Add more hotels as needed
-  ];
 
-  const category = ["test", "production", "development", "release"];
-  const chain = ["hotel", "devo", "mali", "casta", "wamba"];
+
+  const category = ["none",1, 2, 3,4, 5];
+  const chain = ["none", "hotel", "devo", "mali", "casta", "wamba"];
 
   // Filter hotels based on selected criteria
   const filteredHotels = hotels.filter((hotel) => {
-    console.log(selectedCategory, selectedChain, "34");
     return (
       (numberOfRooms === "" ||
-        parseInt(hotel.rooms) === parseInt(numberOfRooms)) &&
-      (selectedCategory === "" || hotel.category === selectedCategory) &&
-      (selectedChain === "" || hotel.chain === selectedChain)
+        parseInt(hotel.nombrechambre) === parseInt(numberOfRooms)) &&
+      ((selectedCategory === "" || selectedCategory === "none") || parseInt(selectedCategory) === parseInt(hotel.classification)) &&
+      (selectedChain === "" || selectedChain === "none" || hotel.nomchaine === selectedChain)
     );
   });
 
+
   return (
     <>
-      <Container style={{ width: "120%", marginLeft: "-8%", backgroundColor: "rgb(61, 61, 61)" }}>
+      <Container style={{ width: "120%", marginLeft: "0", backgroundColor: "rgb(61, 61, 61)" }}>
         <Row style={{width: "100%", backgroundColor: ""}}>
           <Col xs={3} style={{ padding: 0, marginRight: "2%" }}>
             <Row style={{ marginBottom: "3rem" }}>
               <Col>
                 <Card style={{width: "18rem"}}>
-                  <Card.Body>
-                    <Card.Title>Filter</Card.Title>
-                    <p>Number of rooms</p>
+                <Card.Title>Filter</Card.Title>
+                  <Card.Body style={{textAlign: "left"}}>
+                    <p style={{marginBottom: "0"}}>Number of rooms</p>
                     <InputGroup>
                       <Form.Control
                         aria-label="Text input with 2 dropdown buttons"
@@ -88,10 +67,11 @@ function Hotel() {
                     <p style={{marginTop: 20, marginBottom:0}} >Category</p>
                     <InputGroup>
                       <DropdownButton
+                        style={{ border: "6px solid black" }}
                         variant="outline-secondary"
                         title={selectedCategory || "Select Category"}
                         id="category-dropdown"
-                        align="end"
+                        
                       >
                         {category.map((cat) => (
                           <Dropdown.Item
@@ -137,7 +117,7 @@ function Hotel() {
             </Row>
           </Col>
           <Col xs={8}>
-            <Card style={{ width: "63rem" }}>
+            <Card style={{ width: "51.5rem" }}>
               <Container>
                 <Row>
                   <Col>
@@ -149,18 +129,18 @@ function Hotel() {
                 <hr />
                 <Row>
                   {filteredHotels.map((hotel) => (
-                    <Col xs={4} key={hotel.id} style={{ marginBottom: "2rem" }}>
+                    <Col xs={6} key={hotel.nomhotel} style={{ marginBottom: "2rem" }}>
                       <Card
                         style={{
-                          width: "18rem",
+                          width: "22rem",
                           height: "100%",
                           padding: 0,
                           backgroundColor: "lightgrey",
                         }}
                       >
-                        <Card.Img variant="top" src={hotel.image} />
+                        <Card.Img variant="top" src={single} />
                         <Card.Body>
-                          <Card.Title>{hotel.name}</Card.Title>
+                          <Card.Title>{hotel.nomhotel}</Card.Title>
                           <Card
                             style={{
                               width: "100%",
@@ -172,33 +152,39 @@ function Hotel() {
                           >
                             <Card.Body style={{ margin: 0, padding: 0 }}>
                               <Card.Subtitle className="mb-2 text-muted">
-                                <Row>
+                                <Row style={{marginBottom: "5%"}}>
                                   <Col xs={4} style={{ padding: 0 }}>
-                                    <p
+                                    <div
                                       style={{
-                                        fontSize: "12px",
+                                        fontSize: "15px",
                                         textAlign: "left",
                                       }}
                                     >
-                                      Very Good
-                                    </p>
+                                      Rating
+                                    </div>
+                                    <div style={{fontSize: "25px", textAlign: "left", color:"darkblue" }}>
+                                      {hotel.classification}
+                                    </div>
                                   </Col>
                                   <Col xs={8} style={{ paddingLeft: 60 }}>
-                                    <p
+                                    <div
                                       style={{
-                                        fontSize: "12px",
+                                        fontSize: "15px",
                                         textAlign: "left",
                                       }}
                                     >
                                       Room Available
-                                    </p>
+                                    </div>
+                                    <div style={{fontSize: "25px", textAlign: "left", color: "darkblue"}}>
+                                      {hotel.nombrechambre}
+                                    </div>
                                   </Col>
                                 </Row>
                                 <Row>
                                   <Col xs={6} style={{ padding: 0 }}>
                                     <div
                                       style={{
-                                        fontSize: "12px",
+                                        fontSize: "15px",
                                         textAlign: "left",
                                       }}
                                     >
@@ -207,17 +193,18 @@ function Hotel() {
                                     </div>
                                     <div
                                       style={{
-                                        fontSize: "10px",
+                                        fontSize: "12px",
                                         textAlign: "left",
+                                        color:  "darkblue",
                                       }}
                                     >
-                                      {hotel.email}
+                                      {hotel.emailcontact}
                                     </div>
                                   </Col>
-                                  <Col xs={5} style={{ paddingLeft: 18 }}>
+                                  <Col xs={5} style={{ paddingLeft: 7 }}>
                                     <div
                                       style={{
-                                        fontSize: "12px",
+                                        fontSize: "15px",
                                         textAlign: "left",
                                       }}
                                     >
@@ -226,11 +213,12 @@ function Hotel() {
                                     </div>
                                     <div
                                       style={{
-                                        fontSize: "10px",
+                                        fontSize: "15px",
                                         textAlign: "left",
+                                        color: "darkblue",
                                       }}
                                     >
-                                      {hotel.phone}
+                                      {hotel.phonecontact}
                                     </div>
                                   </Col>
                                 </Row>
@@ -238,18 +226,21 @@ function Hotel() {
                               <Card.Text></Card.Text>
                             </Card.Body>
                           </Card>
-                          <Button
-                            style={{
-                              marginTop: "1rem",
-                              borderRadius: "2rem",
-                              width: "7rem",
-                              backgroundColor: "#24324b",
-                              border: "0.12rem solid white",
-                            }}
-                            variant="primary"
-                          >
-                            Select
-                          </Button>
+                          <a href={`/Room/${hotel.nomhotel}`}>
+                            <Button
+                              style={{
+                                marginTop: "1rem",
+                                borderRadius: "2rem",
+                                width: "7rem",
+                                backgroundColor: "#24324b",
+                                border: "0.12rem solid white",
+                              }}
+                              variant="primary"
+                            >
+                              Select
+                            </Button>
+                          </a>
+                        
                         </Card.Body>
                       </Card>
                     </Col>
