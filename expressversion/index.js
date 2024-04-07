@@ -15,6 +15,7 @@ app.use((req, res, next) => {
 
 //CREATE RESERVATION *working*
 app.post("/reservations", async (req, res) => {
+    console.log(req)
     try {
         const { status, resstart, resend, nasclient, numerochambre, nomhotel } = req.body;
         const newReservation = await pool.query(
@@ -31,10 +32,10 @@ app.post("/reservations", async (req, res) => {
 //CREATE LOCATION *working* only have to insert the mentionned parameters
 app.post("/locations", async (req, res) => {
     try{
-        const { nasclient, nasemploye, numchambre, locationstart, locationend, nomhotel, status } = req.body;
+        const { nasclient, nasemploye, numchambre, locationstart, locationend, nomhotel, status, paymentid } = req.body;
         const newLocation = await pool.query(
-            "INSERT INTO location (nasclient, nasemploye, numchambre, locationstart, locationend, nomhotel, status) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
-            [nasclient, nasemploye, numchambre, locationstart, locationend, nomhotel, status]
+            "INSERT INTO location (nasclient, nasemploye, numchambre, locationstart, locationend, nomhotel, status, paymentid) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+            [nasclient, nasemploye, numchambre, locationstart, locationend, nomhotel, status, paymentid]
         );
         res.json(newLocation.rows[0]);
     } catch (err) {
@@ -91,7 +92,31 @@ app.patch("/rooms/:roomnumber", async (req, res) => {
     }
 });
 
+app.get("/chaine/:nomchaine", async (req, res) => {
+    try {
+        const { nomchaine } = req.params;
+        console.log(nomchaine);
 
+        // Query to select a Chaine by its nomChaine
+        const query = 'SELECT * FROM chaine WHERE nomchaine = $1';
+
+        // Execute the query
+        const result = await pool.query(query, [nomchaine]);
+
+        // Check if a Chaine with the provided nomChaine exists
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Chaine not found" });
+        }
+
+        // Send the Chaine as the response
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error('Error fetching Chaine:', error.message);
+        res.status(500).json({ error: "Internal Server Error" }); // Send an error response
+    }
+});
+
+  
 
 //CREATE HOTEL *working*
 app.post("/hotels", async (req, res) => {
@@ -193,6 +218,35 @@ app.get("/employees", async (req, res) => {
     }
 });
 
+// GET Employee by NAS
+app.get("/employees/:nas", async (req, res) => {
+    try {
+       const { nas } = req.params;
+       const employee = await pool.query("SELECT * FROM employe WHERE nas = $1", [nas]);
+       res.json(employee.rows[0]); // Assuming NAS is unique, returning the first result
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+// PATCH Employee by NAS
+app.patch("/employees/:nas", async (req, res) => {
+    try {
+       const { nas } = req.params;
+       const { prenom, nom, numrue, nomrue, ville, cp, role, nomhotel } = req.body;
+       const updatedEmployee = await pool.query(
+           "UPDATE employe SET prenom = $1, nom = $2, numrue = $3, nomrue = $4, ville = $5, cp = $6, role = $7, nomhotel = $8 WHERE nas = $9 RETURNING *",
+           [prenom, nom, numrue, nomrue, ville, cp, role, nomhotel, nas]
+       );
+       res.json(updatedEmployee.rows[0]); // Assuming NAS is unique, returning the first result
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+
+
 // GET ALL EMPLOYEES OF A SPECIFIC HOTEL
 app.get("/hotels/:nomHotel/employees", async (req, res) => {
     const { nomHotel } = req.params; // Extract the hotel name from the request parameters
@@ -223,16 +277,18 @@ app.get("/locations", async (req, res) => {
     }
 });
 
-//GET LOCATIONS OF A CLIENT *working*
 app.get("/clients/:nas/locations", async (req, res) => {
     try {
         const { nas } = req.params;
-        const clientlocations = await pool.query("SELECT * FROM locations WHERE nasclient = $1", [nas]);
+        console.log(nas)
+        const clientlocations = await pool.query("SELECT * FROM locations WHERE nasclient = $1", [String(nas)]);
         res.json(clientlocations.rows);
-    } catch (error) {
+    } catch (err) {
         console.error(err.message);
+        res.status(500).json({ error: "Internal Server Error" }); // Send an error response
     }
 });
+
 
 //GET ALL CLIENTS *working*
 app.get("/clients", async (req, res) => {
