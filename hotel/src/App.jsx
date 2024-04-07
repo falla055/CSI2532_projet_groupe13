@@ -7,6 +7,7 @@ import User from './User'
 import './App.css'
 import Reservation from './Reservation'
 import BasicNav from './Navbar'
+import Register from './Register'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 
@@ -22,6 +23,7 @@ function App() {
           <Route path="/Room/:hotelName" element={<Room />} />
           <Route path="/Reservation" element={<Reservation />} />
           <Route path="/User" element={<User />} />
+          <Route path="/Register" element={<Register />} />
         </Routes>
       </Router>
     </>

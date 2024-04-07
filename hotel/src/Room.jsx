@@ -14,6 +14,9 @@ function Room() {
 
   const { hotelName } = useParams();
   const [rooms, setRooms] = useState([]);
+  const [reservationStart, setReservationStart] = useState("");
+  const [reservationEnd, setReservationEnd] = useState("");
+  const [showReservationModal, setShowReservationModal] = useState(false);
 
   useEffect(() => {
     fetch(`http://localhost:5000/hotels/${hotelName}/rooms`)
@@ -46,10 +49,8 @@ function Room() {
           extphone: parseInt(document.getElementById("formExtPhone").value),
         };
 
-        // Extract the room number from the URL or any other way you have it
-        const roomNumber = selectedRoom.numerochambre; // Replace '123' with the actual room number
+        const roomNumber = selectedRoom ? selectedRoom.numerochambre : null;
         
-        // Send a PATCH request to update the room
         const response = await fetch(`/rooms/${roomNumber}`, {
             method: 'PATCH',
             headers: {
@@ -62,45 +63,84 @@ function Room() {
             throw new Error('Failed to update room');
         }
 
-        // Handle successful update
         console.log('Room updated successfully');
 
-        // Close the modal or perform any other actions as needed
         setShow(false);
     } catch (error) {
         console.error('Error updating room:', error.message);
-        // Handle error - display an error message, etc.
-        console.log('Error updating room:', error.message);
     }
 };
 
+const createReservation = async (room) => {
+  try {
+    const confirmReservation = window.confirm(
+      `Do you want to make a reservation for room ${room.numerochambre} at ${hotelName}?`
+    );
 
-  const reserve = () => {
-    console.log("reserve");
-  }
-
-  const handleFilterClick = () => {
-    setFilterClicked(true);
-    setShowAllClicked(false);
-  };
-
-  const handleShowAllClick = () => {
-    setShowAllClicked(true);
-    setFilterClicked(false);
-  };
-
-  const filteredRooms = rooms.filter((room) => {
-    if (showAllClicked) return true;
-    console.log(parseInt(room.prixparnuit), parseInt(priceFilter) )
-    if (filterClicked) {
-      return (
-        (superficieFilter === "" || room.superficie === parseInt(superficieFilter)) &&
-        (capacityFilter === "" || room.capacite === parseInt(capacityFilter)) &&
-        (priceFilter === "" || parseInt(room.prixparnuit) === parseInt(priceFilter))
-      );
+    if (confirmReservation) {
+      setShowReservationModal(true);
+    } else {
+      console.log('Reservation cancelled');
     }
-    return true;
-  });
+  } catch (error) {
+    console.error('Error creating reservation:', error.message);
+  }
+};
+
+const handleConfirmReservation = async () => {
+  try {
+    if (!selectedRoom) {
+      throw new Error('No room selected for reservation');
+    }
+
+    const response = await fetch('/reservations', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        resstart: reservationStart,
+        resend: reservationEnd,
+        nasclient: localStorage.getItem('nasClient'),
+        numerochambre: selectedRoom.numerochambre,
+        nomhotel: hotelName,
+        status: 'active'
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to create reservation');
+    }
+
+    console.log('Reservation created successfully');
+    setShowReservationModal(false);
+    alert('Reservation created successfully');
+  } catch (error) {
+    console.error('Error creating reservation:', error.message);
+  }
+};
+
+const handleFilterClick = () => {
+  setFilterClicked(true);
+  setShowAllClicked(false);
+};
+
+const handleShowAllClick = () => {
+  setShowAllClicked(true);
+  setFilterClicked(false);
+};
+
+const filteredRooms = rooms.filter((room) => {
+  if (showAllClicked) return true;
+  if (filterClicked) {
+    return (
+      (superficieFilter === "" || room.superficie === parseInt(superficieFilter)) &&
+      (capacityFilter === "" || room.capacite === parseInt(capacityFilter)) &&
+      (priceFilter === "" || parseInt(room.prixparnuit) === parseInt(priceFilter))
+    );
+  }
+  return true;
+});
 
   return (
     <>
@@ -223,7 +263,7 @@ function Room() {
                                   marginRight: 20,
                                 }}
                                 variant="primary"
-                                onClick={() => handleShow(room)}
+                                onClick={() => createReservation(room)}
                               >
                                 Reserve
                               </Button>
@@ -284,6 +324,41 @@ function Room() {
             </Button>
             <Button variant="primary" onClick={handleEdit}>
               Save Changes
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Reservation Modal */}
+        <Modal show={showReservationModal} onHide={() => setShowReservationModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Reservation Dates</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Form>
+              <Form.Group controlId="formReservationStart">
+                <Form.Label>Start Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={reservationStart}
+                  onChange={(e) => setReservationStart(e.target.value)}
+                />
+              </Form.Group>
+              <Form.Group controlId="formReservationEnd">
+                <Form.Label>End Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={reservationEnd}
+                  onChange={(e) => setReservationEnd(e.target.value)}
+                />
+              </Form.Group>
+            </Form>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowReservationModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleConfirmReservation}>
+              Confirm
             </Button>
           </Modal.Footer>
         </Modal>

@@ -56,7 +56,6 @@ const ReservationCard = ({ reservation }) => {
   return (
     <>
       <div style={{ marginTop: "3rem" }}>
-        
         <Card style={{ width: "18rem" }}>
           <Card.Body>
             <Card.Title>Reservation</Card.Title>
