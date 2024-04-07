@@ -16,14 +16,15 @@ app.use((req, res, next) => {
 //CREATE RESERVATION *working*
 app.post("/reservations", async (req, res) => {
     try {
-        const { status, resStart, resEnd, nasclient, numeroChambre, nomHotel } = req.body;
+        const { status, resstart, resend, nasclient, numerochambre, nomhotel } = req.body;
         const newReservation = await pool.query(
             "INSERT INTO reservation (status, resStart, resEnd, nasclient, numeroChambre, nomHotel) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            [status, resStart, resEnd, nasclient, numeroChambre, nomHotel]
+            [status, resstart, resend, nasclient, numerochambre, nomhotel] // Match the variable names
         );
         res.json(newReservation.rows[0]);
     } catch (err) {
         console.error(err.message);
+        res.status(500).send("Server error");
     }
 });
 
