@@ -41,13 +41,27 @@ function Register() {
     }
   };
 
-  const handleLogin = () => {
-    const enteredNAS = prompt("Please enter your NAS:");
-    if (enteredNAS) {
-      localStorage.setItem("NAS", enteredNAS);
-      window.alert("Login completed!");
-    }
-  };
+    // Function to handle login
+    const handleLogin = () => {
+        const choice = prompt("Are you a client or an employee? (Type 'client' or 'employee')");
+    
+        if (choice === 'client' || choice === 'employee') {
+        const enteredNAS = prompt("Please enter your NAS:");
+        if (enteredNAS) {
+            localStorage.setItem("userType", choice);
+            localStorage.setItem("NAS", enteredNAS);
+            window.alert("Login completed!");
+    
+            // Delay page reload after alert message disappears
+            setTimeout(() => {
+            window.location.reload();
+            }, 1000); // Adjust the delay time as needed
+        }
+        } else {
+        window.alert("Invalid choice. Please type 'client' or 'employee'.");
+        }
+    };
+  
 
   return (
     <>
@@ -123,11 +137,11 @@ function Register() {
               />
             </div>
             <button style={{ marginTop: "2%" }} type="submit">
-              Register
+              Register (Client)
             </button>
           </form>
           <button style={{ marginTop: "2%" }} onClick={handleLogin}>
-            Click to Login
+            Click to Login (Employee and Client)
           </button>
         </Card.Body>
       </Card>

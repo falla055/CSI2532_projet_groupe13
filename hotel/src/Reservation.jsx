@@ -16,6 +16,8 @@ import {
   MDBListGroupItem,
 } from "mdb-react-ui-kit";
 
+
+
 // Create LocationCard component
 const LocationCard = ({ location }) => {
   return (
@@ -53,6 +55,74 @@ const ReservationCard = ({ reservation }) => {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
+  const [nas, setNAS] = useState('');
+
+  useEffect(() => {
+    // Retrieve the NAS value from localStorage
+    const storedNAS = localStorage.getItem('NAS');
+    if (storedNAS) {
+      setNAS(storedNAS);
+    }
+  }, []);
+
+  const handleConfirm = async () => {
+    console.log(document.getElementById('form6').value)
+    try {
+      // Update reservation status to "archived"
+      const response = await fetch(`http://localhost:5000/reservations/${reservation.resid}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'archived' }), // Set status to "archived"
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update reservation status');
+      }
+
+      // Get the value entered in the "Card number" input field
+      const cardNumber = document.getElementById('form6').value;
+
+      // Create location
+      const newLocation = {
+        nasclient: reservation.nasclient, // Example value, replace with appropriate value
+        nasemploye: nas, // Example value, replace with appropriate value
+        numchambre: reservation.numerochambre,
+        locationstart: reservation.resstart,
+        locationend: reservation.resend,
+        nomhotel: reservation.nomhotel,
+        paymentid: cardNumber, // Set paymentid to the value entered in the input field
+        status: "active", // Set location status to "active"
+      };
+
+      const locationResponse = await fetch(`http://localhost:5000/locations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newLocation),
+      });
+
+      if (!locationResponse.ok) {
+        throw new Error('Failed to create location');
+      }
+
+      // Close modal
+      setShow(false);
+
+      // Reload reservations and locations data
+      // You may need to update this part based on your application logic
+      // For example, you can reload data only if the updates were successful
+      // or handle errors differently
+      window.location.reload();
+    } catch (error) {
+      console.error('Error updating reservation status and creating location:', error.message);
+    }
+  };
+
+
+
   return (
     <>
       <div style={{ marginTop: "3rem" }}>
@@ -77,7 +147,7 @@ const ReservationCard = ({ reservation }) => {
                 <div>{reservation.resend}</div>
               </div>
             </Card.Text>
-            <Button variant="primary" style={{display: reservation.status === "active" ? "block" : "none"}} onClick={handleShow}>Transform to location</Button>
+            <Button variant="primary" style={{ display: reservation.status === "active" ? "block" : "none" }} onClick={handleShow}>Transform to location</Button>
           </Card.Body>
           <Modal show={show} onHide={handleClose} size="xl">
             <Modal.Header closeButton>
@@ -162,7 +232,7 @@ const ReservationCard = ({ reservation }) => {
                         <MDBRow>
                           <MDBCol>
                             <MDBInput
-                              label="Name on card"
+                              label="Card number"
                               id="form6"
                               type="text"
                               wrapperClass="mb-4"
@@ -234,7 +304,7 @@ const ReservationCard = ({ reservation }) => {
             </Modal.Body>
             <Modal.Footer>
               <Button variant="secondary" onClick={handleClose}>Close</Button>
-              <Button variant="primary" onClick={handleClose}>Confirm</Button>
+              <Button variant="primary" onClick={handleConfirm}>Confirm</Button>
             </Modal.Footer>
           </Modal>
         </Card>
@@ -274,30 +344,38 @@ function Reservation() {
       </div>
       <Card.Body>
         <Card.Title>Reservations / Locations</Card.Title>
-        <Card.Text>
-          {segment === "current" || segment === "archived" ? (
-            allReservation.map(reservation => {
+        <Card.Text style={{ display: "flex", flexWrap: "wrap" }}>
+          {segment === "current" || segment === "archived"
+            ? allReservation.map((reservation) => {
               if (
                 (segment === "current" && reservation.status === "archived") ||
                 (segment === "archived" && reservation.status === "active")
               ) {
                 return null;
               }
-              return <ReservationCard key={reservation.resid} reservation={reservation} />;
+              return (
+                <div key={reservation.resid} style={{ marginRight: "10px" }}>
+                  <ReservationCard reservation={reservation} />
+                </div>
+              );
             })
-          ) : null}
-          {segment === "activeLocations" || segment === "archivedLocations" ? (
-            allLocations.map(location => {
-              if (
-                (segment === "activeLocations" && location.status === "archived") ||
-                (segment === "archivedLocations" && location.status === "active")
-              ) {
-                return null;
-              }
-              return <LocationCard key={location.locationid} location={location} />;
-            })
-          ) : null}
+            : segment === "activeLocations" || segment === "archivedLocations"
+              ? allLocations.map((location) => {
+                if (
+                  (segment === "activeLocations" && location.status === "archived") ||
+                  (segment === "archivedLocations" && location.status === "active")
+                ) {
+                  return null;
+                }
+                return (
+                  <div key={location.locationid} style={{ marginRight: "10px" }}>
+                    <LocationCard location={location} />
+                  </div>
+                );
+              })
+              : null}
         </Card.Text>
+
       </Card.Body>
     </Card>
   );

@@ -23,6 +23,17 @@ function Room() {
     .then(res => res.json())
     .then(data => setRooms(data))
     .catch(err => console.log(err))
+  }, [hotelName]);
+
+  const [nas, setNAS] = useState('');
+
+
+  useEffect(() => {
+    // Retrieve the NAS value from localStorage
+    const storedNAS = localStorage.getItem('NAS');
+    if (storedNAS) {
+      setNAS(storedNAS);
+    }
   }, []);
 
   const [show, setShow] = useState(false);
@@ -32,6 +43,7 @@ function Room() {
   const [priceFilter, setPriceFilter] = useState("");
   const [filterClicked, setFilterClicked] = useState(false);
   const [showAllClicked, setShowAllClicked] = useState(false);
+  const [specificRoom, setSpecificRoom] = useState("");
 
   const handleClose = () => setShow(false);
   const handleShow = (room) => {
@@ -47,11 +59,13 @@ function Room() {
           dommages: document.getElementById("formDommages").value,
           capacite: parseInt(document.getElementById("formCapacity").value),
           extphone: parseInt(document.getElementById("formExtPhone").value),
+          superficie: parseInt(document.getElementById("formSuperficie").value),
+          nomhotel: hotelName
         };
 
         const roomNumber = selectedRoom ? selectedRoom.numerochambre : null;
         
-        const response = await fetch(`/rooms/${roomNumber}`, {
+        const response = await fetch(`http://localhost:5000/rooms/${roomNumber}`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,6 +93,7 @@ const createReservation = async (room) => {
 
     if (confirmReservation) {
       setShowReservationModal(true);
+      setSpecificRoom(room);
     } else {
       console.log('Reservation cancelled');
     }
@@ -88,24 +103,24 @@ const createReservation = async (room) => {
 };
 
 const handleConfirmReservation = async () => {
-  try {
-    if (!selectedRoom) {
-      throw new Error('No room selected for reservation');
-    }
+  const data = {
+    resstart: reservationStart,
+    resend: reservationEnd,
+    nasclient: nas,
+    numerochambre: specificRoom.numerochambre,
+    nomhotel: hotelName,
+    status: 'active'
+  };
 
-    const response = await fetch('/reservations', {
+  console.log(data);
+
+  try {
+    const response = await fetch('http://localhost:5000/reservations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({
-        resstart: reservationStart,
-        resend: reservationEnd,
-        nasclient: localStorage.getItem('nasClient'),
-        numerochambre: selectedRoom.numerochambre,
-        nomhotel: hotelName,
-        status: 'active'
-      })
+      body: JSON.stringify(data)
     });
 
     if (!response.ok) {
@@ -237,23 +252,18 @@ const filteredRooms = rooms.filter((room) => {
                                 <span style={{fontWeight: "bold"}} >phone extension: </span>
                                 <span>{room.extphone}</span>
                               </div>
+                              <div >
+                                <span style={{fontWeight: "bold"}} >Superficie: </span>
+                                <span>{room.superficie}</span>
+                              </div>
                               <div style={{ marginBottom: 10 }}>
                                 <span style={{fontWeight: "bold"}} >Vue: </span>
                                 <span>{room.vue}</span>
                               </div>
-                              <Button
-                                style={{
-                                  borderRadius: "2rem",
-                                  width: "10rem",
-                                  backgroundColor: "#24324b",
-                                  border: "0.12rem solid white",
-                                  marginRight: 20,
-                                }}
-                                variant="primary"
-                                onClick={() => handleShow(room)}
-                              >
-                                View Dommages
-                              </Button>
+                              <div style={{ marginBottom: 10 }}>
+                                <span style={{fontWeight: "bold"}} >Dommages: </span>
+                                <span>{room.dommages}</span>
+                              </div>
                               <Button
                                 style={{
                                   borderRadius: "2rem",
@@ -267,18 +277,7 @@ const filteredRooms = rooms.filter((room) => {
                               >
                                 Reserve
                               </Button>
-                              <Button
-                                style={{
-                                  borderRadius: "2rem",
-                                  width: "7rem",
-                                  backgroundColor: "#24324b",
-                                  border: "0.12rem solid white",
-                                }}
-                                variant="primary"
-                                onClick={() => handleShow(room)}
-                              >
-                                Edit
-                              </Button>
+
                             </Card.Text>
                           </Card.Body>
                         </Col>
@@ -307,6 +306,10 @@ const filteredRooms = rooms.filter((room) => {
               <Form.Group controlId="formExtPhone">
                 <Form.Label>Phone extension</Form.Label>
                 <Form.Control type="number" placeholder="Enter phone extension" defaultValue={selectedRoom ? selectedRoom.extphone : ""} />
+              </Form.Group>
+              <Form.Group controlId="formSuperficie">
+                <Form.Label>Superficie</Form.Label>
+                <Form.Control type="number" placeholder="Enter phone extension" defaultValue={selectedRoom ? selectedRoom.superficie : ""} />
               </Form.Group>
               <Form.Group controlId="formVue">
                 <Form.Label>Vue</Form.Label>

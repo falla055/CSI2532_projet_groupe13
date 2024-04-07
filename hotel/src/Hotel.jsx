@@ -29,11 +29,12 @@ function Hotel() {
   const [numberOfRooms, setNumberOfRooms] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedChain, setSelectedChain] = useState("");
+  const [chainInfo, setChainInfo] = useState(null);
 
 
 
   const category = ["none",1, 2, 3,4, 5];
-  const chain = ["none", "hotel", "devo", "mali", "casta", "wamba"];
+  const chain = [ "Chaine A", "Chaine B", "Chaine C", "Chaine D", "Chaine E"];
 
   // Filter hotels based on selected criteria
   const filteredHotels = hotels.filter((hotel) => {
@@ -44,6 +45,17 @@ function Hotel() {
       (selectedChain === "" || selectedChain === "none" || hotel.nomchaine === selectedChain)
     );
   });
+
+    const handleChainSelect = async (selectedChain) => {
+    setSelectedChain(selectedChain);
+    try {
+      const response = await fetch(`http://localhost:5000/chaine/${selectedChain}`);
+      const data = await response.json();
+      setChainInfo(data);
+    } catch (error) {
+      console.error("Error fetching chain info:", error);
+    }
+  };
 
 
   return (
@@ -107,12 +119,34 @@ function Hotel() {
             </Row>
             <Row>
               <Col>
-                <Card style={{ width: "18rem" }}>
-                  <Card.Body>
-                    <Card.Title>Hotel Info</Card.Title>
-                    <Card.Text></Card.Text>
-                  </Card.Body>
-                </Card>
+              <Card style={{ width: "18rem", marginTop: "20px" }}>
+            <Card.Body>
+              <Card.Title>View chaine info by selecting chaine</Card.Title>
+              <InputGroup>
+                <DropdownButton
+                  variant="outline-secondary"
+                  title={selectedChain || "Select Chaine to view info"}
+                  id="chain-dropdown"
+                  align="center"
+                >
+                  {chain.map((ch) => (
+                    <Dropdown.Item key={ch} onClick={() => handleChainSelect(ch)}>
+                      {ch}
+                    </Dropdown.Item>
+                  ))}
+                </DropdownButton>
+              </InputGroup>
+              {chainInfo && (
+                <div>
+                  <p> <span style={{fontWeight: "bold"}}>Nombre Hotel: </span>{chainInfo.nombrehotel}</p>
+                  <p> <span style={{fontWeight: "bold"}}>Num Rue: </span>{chainInfo.numrue}</p>
+                  <p><span style={{fontWeight: "bold"}}>Nom Rue: </span>{chainInfo.nomrue}</p>
+                  <p><span style={{fontWeight: "bold"}}>Ville: </span>{chainInfo.ville}</p>
+                  <p><span style={{fontWeight: "bold"}}>CP: </span>{chainInfo.cp}</p>
+                </div>
+              )}
+            </Card.Body>
+          </Card>
               </Col>
             </Row>
           </Col>
@@ -144,7 +178,7 @@ function Hotel() {
                           <Card
                             style={{
                               width: "100%",
-                              height: "8rem",
+                              height: "18.7rem",
                               backgroundColor: "darkgrey",
                               paddingLeft: 20,
                               paddingRight: 0,
@@ -180,8 +214,30 @@ function Hotel() {
                                     </div>
                                   </Col>
                                 </Row>
-                                <Row>
-                                  <Col xs={6} style={{ padding: 0 }}>
+                                <Row style={{marginBottom: "10%"}}>
+                                  <Col xs={13} style={{ paddingLeft: 0}}>
+                                    <div
+                                      style={{
+                                        fontSize: "15px",
+                                        textAlign: "left",
+                                      }}
+                                    >
+                                      {" "}
+                                      Adresse
+                                    </div>
+                                    <div
+                                      style={{
+                                        fontSize: "18px",
+                                        textAlign: "left",
+                                        color: "darkblue",
+                                      }}
+                                    >
+                                      {hotel.numrue} {hotel.nomrue} {hotel.ville} {hotel.cp}
+                                    </div>
+                                  </Col>
+                                </Row>
+                                <Row style={{ marginBottom: "10%" }}>
+                                  <Col xs={11} style={{ padding: 0 }}>
                                     <div
                                       style={{
                                         fontSize: "15px",
@@ -193,7 +249,7 @@ function Hotel() {
                                     </div>
                                     <div
                                       style={{
-                                        fontSize: "12px",
+                                        fontSize: "20px",
                                         textAlign: "left",
                                         color:  "darkblue",
                                       }}
@@ -201,7 +257,9 @@ function Hotel() {
                                       {hotel.emailcontact}
                                     </div>
                                   </Col>
-                                  <Col xs={5} style={{ paddingLeft: 7 }}>
+                                </Row>
+                                <Row>
+                                <Col xs={10} style={{ paddingLeft: 0}}>
                                     <div
                                       style={{
                                         fontSize: "15px",
@@ -213,7 +271,7 @@ function Hotel() {
                                     </div>
                                     <div
                                       style={{
-                                        fontSize: "15px",
+                                        fontSize: "20px",
                                         textAlign: "left",
                                         color: "darkblue",
                                       }}

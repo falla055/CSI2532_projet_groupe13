@@ -8,6 +8,7 @@ import './App.css'
 import Reservation from './Reservation'
 import BasicNav from './Navbar'
 import Register from './Register'
+import RoomE from './RoomE'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/Reservation" element={<Reservation />} />
           <Route path="/User" element={<User />} />
           <Route path="/Register" element={<Register />} />
+          <Route path="/RoomE" element={<RoomE />} />
         </Routes>
       </Router>
     </>
