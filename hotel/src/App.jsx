@@ -3,6 +3,7 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import Room from './Room'
 import Hotel from './Hotel'
+import User from './User'
 import './App.css'
 import Reservation from './Reservation'
 import BasicNav from './Navbar'
@@ -20,6 +21,7 @@ function App() {
           <Route path="/" element={<Hotel />} />
           <Route path="/Room/:hotelName" element={<Room />} />
           <Route path="/Reservation" element={<Reservation />} />
+          <Route path="/User" element={<User />} />
         </Routes>
       </Router>
     </>
