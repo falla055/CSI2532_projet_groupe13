@@ -214,6 +214,47 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+--check room availability
+CREATE OR REPLACE FUNCTION check_room_availability()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM Reservation
+    WHERE numeroChambre = NEW.numeroChambre
+    AND (
+      (NEW.DateArrivee BETWEEN DateArrivee AND DateDepart) OR
+      (NEW.DateDepart BETWEEN DateArrivee AND DateDepart) OR
+      (DateArrivee BETWEEN NEW.DateArrivee AND NEW.DateDepart) OR
+      (DateDepart BETWEEN NEW.DateArrivee AND NEW.DateDepart)
+    )
+  ) THEN
+    RAISE EXCEPTION 'La chambre est déjà réservée pour les dates spécifiées.';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- verifie s'il y a chevauchements de location pour la meme chambre
+CREATE OR REPLACE FUNCTION check_location_availability()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Vérifier les chevauchements de dates pour la chambre spécifiée
+  IF EXISTS (
+    SELECT 1 FROM Location
+    WHERE numChambre = NEW.numChambre AND nomHotel = NEW.nomHotel
+    AND (
+      (NEW.locationStart BETWEEN locationStart AND locationEnd) OR
+      (NEW.locationEnd BETWEEN locationStart AND locationEnd) OR
+      (locationStart BETWEEN NEW.locationStart AND NEW.locationEnd) OR
+      (locationEnd BETWEEN NEW.locationStart AND NEW.locationEnd)
+    )
+  ) THEN
+    RAISE EXCEPTION 'La chambre % est déjà occupée pour les dates spécifiées.', NEW.numChambre;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 --*********** TRIGGERS **********
 
 --trigger for the update_chambre_reserved_status() function
@@ -260,3 +301,12 @@ AFTER DELETE ON chambre
 FOR EACH ROW
 EXECUTE FUNCTION update_hotel_chambre_count();
 
+-- check the availability of the room before reservation
+CREATE TRIGGER check_availability_before_reservation
+BEFORE INSERT ON Reservation
+FOR EACH ROW EXECUTE FUNCTION check_room_availability();
+
+-- check the availability of the room before location
+CREATE TRIGGER check_availability_before_location
+BEFORE INSERT ON Location
+FOR EACH ROW EXECUTE FUNCTION check_room_availability();
