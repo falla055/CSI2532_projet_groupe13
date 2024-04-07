@@ -34,7 +34,7 @@ function BasicNav() {
           {userType === 'employee' ? null : <Nav.Link as={Link} to="/">Hotel</Nav.Link>}
             <Nav.Link as={Link} to="/Reservation">Reservation/locations</Nav.Link>
             <Nav.Link as={Link} to="/User">User</Nav.Link>
-          {userType === 'employee' ?   <Nav.Link as={Link} to="/Register">Register/Login</Nav.Link>: null }
+          <Nav.Link as={Link} to="/Register">Register/Login</Nav.Link>
           {userType === 'employee' ?  <Nav.Link as={Link} to="/RoomE">Room</Nav.Link>: null}
           </Nav>
 
