@@ -256,6 +256,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+--change le status de reservation a archived apres transformer en location
+CREATE OR REPLACE FUNCTION archive_reservation_status()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Update the Reservation status to 'archived'
+    UPDATE Reservation
+    SET status = 'archived'
+    FROM Location
+    WHERE Reservation.nasClient = NEW.nasClient
+    AND Reservation.numeroChambre = NEW.numeroChambre
+    AND Reservation.nomHotel = NEW.nomHotel;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 --*********** TRIGGERS **********
 
 --trigger for the update_chambre_reserved_status() function
@@ -311,3 +327,9 @@ FOR EACH ROW EXECUTE FUNCTION check_room_availability();
 CREATE TRIGGER check_availability_before_location
 BEFORE INSERT ON Location
 FOR EACH ROW EXECUTE FUNCTION check_room_availability();
+
+-- trigger to check if the new location matches any existing reservation to update its status to archvied
+CREATE TRIGGER archive_reservation_after_location_insert
+AFTER INSERT ON Location
+FOR EACH ROW
+EXECUTE FUNCTION archive_reservation_status();
